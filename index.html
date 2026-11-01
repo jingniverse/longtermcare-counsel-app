@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f8f5ee">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="장기요양 안내">
+<meta name="format-detection" content="telephone=no">
+<title>장기요양 상담 안내</title>
+<style>
+:root{
+  --bg:oklch(97.5% 0.012 85);
+  --card:oklch(99.5% 0.004 85);
+  --ink:oklch(26% 0.02 60);
+  --muted:oklch(50% 0.02 60);
+  --line:oklch(90% 0.015 80);
+  --main:oklch(48% 0.09 165);
+  --main-soft:oklch(94% 0.035 165);
+  --warn:oklch(55% 0.13 45);
+  --warn-soft:oklch(95% 0.04 60);
+  --say:oklch(96% 0.025 250);
+  --say-ink:oklch(38% 0.08 255);
+  --fs:17px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:var(--fs)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","AppleGothic","Malgun Gothic","Noto Sans KR",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:860px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 18px calc(80px + env(safe-area-inset-bottom))}
+.btn,.step,.tile,.seg button,summary{touch-action:manipulation}
+header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
+.brand small{display:block;color:var(--muted);font-size:.8rem;letter-spacing:.02em}
+.brand h1{font-size:1.55rem;font-weight:800;letter-spacing:-.02em}
+.tools{display:flex;gap:6px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:.85rem;padding:8px 12px;border-radius:10px;cursor:pointer;min-height:40px}
+.btn.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.btn.back{font-weight:700}
+/* 전체 흐름 */
+.flow{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:22px}
+.flow h2{font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:10px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;counter-reset:s}
+.step{counter-increment:s;border:none;background:var(--main-soft);color:var(--main);border-radius:12px;padding:10px 8px;font:inherit;font-weight:700;font-size:.88rem;text-align:left;cursor:pointer;min-height:64px}
+.step::before{content:counter(s);display:block;font-size:.72rem;opacity:.7;font-weight:600}
+.step span{display:block;font-weight:500;font-size:.72rem;color:var(--muted);margin-top:2px}
+.step:hover{background:oklch(90% 0.05 165)}
+@media(max-width:560px){.steps{grid-template-columns:repeat(2,1fr)}}
+/* 검색 + 상황 */
+.search{width:100%;font:inherit;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin-bottom:18px}
+.phase{margin-bottom:22px}
+.phase h3{font-size:1rem;font-weight:800;margin-bottom:10px;display:flex;align-items:baseline;gap:8px}
+.phase h3 em{font-style:normal;font-size:.78rem;color:var(--muted);font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.tile{text-align:left;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;cursor:pointer;min-height:84px;transition:border-color .15s,transform .15s}
+.tile:hover{border-color:var(--main);transform:translateY(-1px)}
+.tile b{display:block;font-size:1.02rem;font-weight:700;margin-bottom:3px}
+.tile span{font-size:.84rem;color:var(--muted)}
+/* 상세 */
+.detail{display:none}
+.detail.show{display:block}
+.home.hide{display:none}
+.dhead{margin:6px 0 18px}
+.dhead .tag{display:inline-block;font-size:.75rem;font-weight:700;color:var(--main);background:var(--main-soft);padding:3px 10px;border-radius:99px;margin-bottom:8px}
+.dhead h2{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;line-height:1.35}
+.dhead p{font-size:1.05rem;margin-top:8px;font-weight:600}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+.sec h4{font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.02em}
+.sec ol{padding-left:0;list-style:none;counter-reset:o}
+.sec ol li{counter-increment:o;position:relative;padding:6px 0 6px 38px}
+.sec ol li::before{content:counter(o);position:absolute;left:0;top:6px;width:26px;height:26px;border-radius:50%;background:var(--main);color:#fff;font-size:.8rem;font-weight:700;display:grid;place-items:center}
+.sec ul{list-style:none}
+.sec ul li{padding:5px 0 5px 22px;position:relative}
+.sec ul li::before{content:"";position:absolute;left:4px;top:.85em;width:7px;height:7px;border-radius:2px;background:var(--main)}
+.sec.say{background:var(--say);border-color:transparent}
+.sec.say h4{color:var(--say-ink)}
+.quote{font-size:1.05rem;color:var(--say-ink);font-weight:500;padding:8px 0;border-bottom:1px dashed oklch(85% 0.03 250)}
+.quote:last-child{border-bottom:none}
+.sec.bring ul li::before{content:"";width:16px;height:16px;border-radius:4px;border:2px solid var(--main);background:none;top:.45em;left:0}
+.sec.bring ul li{padding-left:28px;cursor:pointer}
+.sec.bring ul li.ck{color:var(--muted);text-decoration:line-through}
+.sec.bring ul li.ck::before{background:var(--main)}
+.sec.warn{background:var(--warn-soft);border-color:transparent}
+.sec.warn h4{color:var(--warn)}
+.sec.warn ul li::before{background:var(--warn)}
+details{border-top:1px solid var(--line);padding:10px 0}
+details:first-of-type{border-top:none}
+summary{font-weight:700;cursor:pointer;list-style:none}
+summary::before{content:"Q. ";color:var(--main)}
+details p{margin-top:6px;color:var(--ink)}
+table.t{width:100%;border-collapse:collapse;font-size:.92rem}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
+table.t th{color:var(--muted);font-weight:600;font-size:.8rem}
+.next{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.next button{font:inherit;font-size:.9rem;background:var(--ink);color:var(--card);border:none;border-radius:12px;padding:12px 16px;cursor:pointer}
+/* 계산기 */
+.calc label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 6px;font-weight:600}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:inherit;font-size:.92rem;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:10px 14px;cursor:pointer;min-height:44px}
+.seg button.on{background:var(--main);color:#fff;border-color:var(--main)}
+.result{margin-top:16px;background:var(--main-soft);border-radius:14px;padding:16px}
+.result .big{font-size:1.8rem;font-weight:800;color:var(--main);letter-spacing:-.02em}
+.result small{display:block;color:var(--muted);font-size:.8rem;margin-top:6px}
+footer{margin-top:30px;font-size:.78rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><small>보호자·어르신 설명용</small><h1>장기요양 상담 안내</h1></div>
+    <div class="tools">
+      <button class="btn back" id="backBtn" style="display:none">← 처음으로</button>
+      <button class="btn" id="fontBtn">글자 크게</button>
+    </div>
+  </header>
+
+  <section class="home" id="home">
+    <div class="flow">
+      <h2>전체 흐름 — 단계를 누르면 설명이 나와요</h2>
+      <div class="steps" id="steps"></div>
+    </div>
+    <input class="search" id="q" placeholder="찾기 — 예: 소견서, 비용, 가족요양, 등급외">
+    <div id="phases"></div>
+  </section>
+
+  <section class="detail" id="detail"></section>
+
+  <footer>
+    회사 매뉴얼(계약 상담하기·수급자 계약하기·요양보호사 계약하기)과 실제 상담 내용을 바탕으로 정리했어요.
+    금액·기간은 2026년 기준 안내용이며, 정확한 내용은 공단 서류와 국민건강보험공단(1577-1000)에서 확인하세요.
+  </footer>
+</div>
+
+<script>
+const S = []; // 상황 카드
+const PHASES = [
+  {id:"apply", name:"등급 신청 전·신청할 때", hint:"아직 등급이 없어요"},
+  {id:"survey", name:"인정조사·의사소견서", hint:"공단 조사를 앞두고 있어요"},
+  {id:"result", name:"결과가 나왔을 때", hint:"등급 결과를 받았어요"},
+  {id:"contract", name:"방문상담·계약", hint:"서비스를 시작하려고 해요"},
+  {id:"match", name:"요양보호사 매칭", hint:"어떤 선생님이 오시나요?"},
+  {id:"use", name:"비용·이용 중 궁금한 것", hint:"자주 받는 질문"}
+];
+const FLOW = [
+  ["등급 신청","공단에 신청서 접수","s-apply"],
+  ["공단 연락","접수 후 10일 안에 전화","s-call"],
+  ["인정조사","공단 직원 집 방문","s-survey"],
+  ["의사소견서","의뢰서 들고 병원","s-doctor"],
+  ["결과 통보","신청 후 약 30일","s-granted"],
+  ["방문상담·계약","센터가 집으로 방문","s-visit"],
+  ["요양보호사 매칭","면접 후 선택","s-match"],
+  ["서비스 시작","일정표 받고 시작","s-start"]
+];
+</script>
+
+<script>
+/* ── 1. 등급 신청 전·신청할 때 ── */
+S.push({id:"s-first",phase:"apply",title:"처음 문의 — 아직 등급이 없어요",sub:"전화·방문 첫 상담",
+lead:"먼저 장기요양등급을 받아야 방문요양을 이용할 수 있어요. 신청은 저희가 무료로 도와드려요.",
+steps:["어르신 상태 여쭤보기 — 거동, 휠체어 사용, 드시는 약, 병력, 혼자 사시는지","신청 가능한지 확인 — 만 65세 이상, 또는 65세 미만이면서 치매·뇌졸중 같은 노인성 질병이 있는 분","우리 센터가 방문할 수 있는 지역인지 확인 — 어려우면 가까운 지점이나 다른 기관 안내","신청서 작성을 도와드리고 공단에 접수"],
+say:["“장기요양 서비스는 먼저 등급을 받으셔야 이용하실 수 있어요. 신청은 저희가 처음부터 무료로 도와드려요.”","“등급은 어르신이 일상생활을 얼마나 혼자 하시기 어려운지를 보고 정해져요. 가족이 계신지, 형편이 어떠신지는 등급에 들어가지 않아요.”","“신청하고 결과가 나오기까지 보통 한 달 정도 걸려요.”"],
+warn:["지역이 멀어 방문이 어려우면 무리해서 받지 말고 다른 지점·기관을 안내해요."],
+next:["s-apply","s-wait"]});
+
+S.push({id:"s-apply",phase:"apply",title:"등급 신청하는 방법",sub:"어디서, 무엇을 들고",
+lead:"공단 지사 방문, 우편, 팩스, 인터넷으로 신청할 수 있어요. 센터가 대신 써드릴 수 있어요.",
+steps:["신청서 작성 — 처음이면 ‘인정 신청’, 등급이 있는데 계속 받으려면 ‘갱신’, 상태가 바뀌었으면 ‘등급 변경’","신분증 준비 — 본인이 하면 본인 신분증, 보호자·대리인이 하면 그분 신분증","주소지 관할 국민건강보험공단 지사에 제출 (전화 문의 1577-1000)"],
+bring:["어르신 신분증 (또는 사진)","보호자·대리인이 신청하면 대리인 신분증","신청서 (센터에서 같이 작성)"],
+say:["“신청서는 지금 저랑 같이 쓰시면 돼요. 오래 안 걸려요.”","“공단에서 연락이 오면 저희 센터에도 꼭 알려주세요. 다음 순서를 같이 챙겨드릴게요.”"],
+warn:["인터넷 신청은 만 65세 이상만 돼요. 65세 미만·외국인은 방문·우편·팩스로.","센터장 등 기관 쪽에서는 인터넷 대리 신청이 안 돼요 — 방문·우편·팩스로 제출."],
+next:["s-call"]});
+
+S.push({id:"s-call",phase:"apply",title:"공단에서 전화가 왔어요",sub:"방문조사 날짜 잡기",
+lead:"접수하고 약 10일 안에 공단이 방문조사 날짜를 잡으려고 전화해요.",
+steps:["조사 날짜·시간 정하기 — 보호자가 함께 있을 수 있는 날로","정해진 날짜를 센터에 알려주기","조사 전에 어떻게 말할지 미리 정리해 두기"],
+say:["“조사하는 날은 가능하면 어르신 상태를 잘 아는 가족분이 같이 계시는 게 좋아요.”","“날짜 잡히면 저한테도 문자 한 통만 주세요. 조사 전에 뭘 말씀하시면 되는지 같이 정리해 드릴게요.”"],
+warn:["전화로 “요즘 괜찮으세요?” 하고 물으면 그냥 “좋아요”라고 하기 쉬워요. 그러면 신청을 미루라는 안내를 받을 수 있어요. 평소 힘든 점을 사실대로 말씀하시면 돼요.","신청을 취소(철회)하면 나중에 처음부터 다시 신청해야 해요."],
+next:["s-survey"]});
+
+S.push({id:"s-wait",phase:"apply",title:"등급 나오기 전인데 당장 도움이 필요해요",sub:"비급여 서비스",
+lead:"등급 없이도 ‘비급여’로 요양보호사를 쓸 수 있지만, 보험이 안 돼서 전액 본인이 내요.",
+steps:["비급여는 보호자와 요양보호사가 1:1로 직접 계약","시급은 평균 13,000원 안팎 (지역마다 다름)","등급이 나오면 바로 보험 되는 방문요양으로 바꿔드림"],
+say:["“등급 나오기까지 한 달 넘게 걸리니까, 그동안 힘드시면 비급여로 먼저 도와드릴 수 있어요. 등급이 나오면 바로 바꿔드릴게요.”"],
+warn:["비급여 시간에는 배상책임보험이 적용되지 않아요."],
+next:["s-apply"]});
+
+/* ── 2. 인정조사·의사소견서 ── */
+S.push({id:"s-survey",phase:"survey",title:"인정조사 미리 준비하기",sub:"공단 직원이 집에 와요",
+lead:"공단 직원이 집에 와서 약 90가지를 여쭤봐요. 평소 가장 힘드실 때를 기준으로 사실대로 말씀하시면 돼요.",
+steps:["힘든 일을 활동별로 미리 적어두기 — 식사 준비, 화장실, 옷 입기, 목욕, 밤에 화장실 가기","얼마나 자주, 누가 도와주는지 같이 적기","드시는 약, 다니는 병원, 최근 넘어진 일 정리","치매 증상(같은 말 반복, 길 잃음, 밤에 돌아다님)이 있으면 언제 어떻게였는지 기록"],
+bring:["드시는 약 봉투·처방전","다니는 병원 이름","진단서·검사 결과 (있으면)","힘든 점 적은 메모"],
+say:["“컨디션 좋은 날이 아니라, 제일 힘드실 때를 기준으로 말씀하시면 돼요.”","“부풀리지도 줄이지도 마시고, 평소 모습을 구체적으로 말씀하시는 게 제일 좋아요.”","“밤에 돌아다니시거나 지켜봐 드려야 하는 시간이 있으면 꼭 말씀해 주세요. 그것도 반영될 수 있어요.”"],
+warn:["거짓말이나 과장은 하지 않도록 안내해요. 앞뒤 말이 다르면 오히려 믿음을 잃어요.","가족이 있는지, 형편이 어떤지는 등급에 반영되지 않아요."],
+next:["s-surveyday","s-dementia"]});
+
+S.push({id:"s-surveyday",phase:"survey",title:"조사 당일, 이렇게 말해요",sub:"어르신·보호자에게 알려줄 말",
+lead:"동작은 무리하지 말고, 못 하는 건 못 한다고, 아픈 건 아프다고 하시면 돼요.",
+steps:["팔 올리기·일어서기 같은 동작은 아픈 만큼만 — 억지로 하지 않기","“할 수는 있는데 아파요 / 오래 걸려요 / 누가 옆에 있어야 해요” 처럼 구체적으로","잘 안 들리면 “다시 말씀해 주세요” 하기","보호자는 어르신 말이 평소와 다를 때 조용히 보충 설명"],
+say:["“아프신데 참고 해 보이시면, 괜찮으신 걸로 기록될 수 있어요. 아프면 아프다고 하세요.”","“잘 못 들으셨으면 부끄러워하지 마시고 다시 물어봐 달라고 하세요.”","“예를 들어 ‘화장실은 혼자 가는데 벽 잡고 가요, 밤에는 한 번씩 넘어질 뻔해요’ 이렇게요.”"],
+warn:["일부러 못 하는 척하는 건 안 돼요. 평소 그대로가 원칙이에요."],
+next:["s-dementia","s-doctor"]});
+
+S.push({id:"s-dementia",phase:"survey",title:"치매(인지) 질문이 나와요",sub:"어떤 걸 물어보는지",
+lead:"조사 중에 기억력·계산을 확인하는 간단한 질문이 있어요. 미리 알면 덜 당황하세요.",
+steps:["오늘 날짜, 요일, 계절, 여기가 어디인지","단어 3개 듣고 나중에 다시 말하기 (예: 나무, 자동차…)","간단한 계산 (예: “500원짜리 일곱 장이면 얼마예요?”)"],
+say:["“시험이 아니니까 편하게 대답하시면 돼요. 모르시면 모른다고 하셔도 괜찮아요.”"],
+warn:["답을 미리 외우게 하지 않아요. 평소 상태 그대로 확인하는 거예요."],
+next:["s-doctor"]});
+
+S.push({id:"s-doctor",phase:"survey",title:"의사소견서 받기",sub:"조사 끝나면 병원으로",
+lead:"공단이 주는 ‘의사소견서 발급의뢰서’를 들고 병원에 가서 소견서를 받아야 등급이 나와요.",
+steps:["공단에서 의뢰서 받기 (조사 때 주거나 우편으로 옴)","평소 다니는 병원에 가서 발급 — 어르신을 잘 아는 단골 병원이 편해요","병원이 공단에 전산으로 바로 보내는지 확인 — 안 되면 원본을 공단에 직접 제출","기한 안에 꼭 제출"],
+bring:["의사소견서 발급의뢰서","어르신 신분증","드시는 약·진료 기록"],
+table:[["구분","비용(대략)"],["일반","약 12,400원"],["감경 대상","그보다 적음"],["기초수급 등 면제","무료"]],
+say:["“의뢰서 받으시면 평소 다니시는 병원에 가셔서 ‘장기요양 의사소견서’ 받으러 왔다고 하시면 돼요.”","“병원에서 공단으로 바로 보내주는지 꼭 물어봐 주세요. 직접 내야 하면 번거로우시니까요.”"],
+warn:["기한을 넘기면 신청이 진행되지 않을 수 있어요. 날짜를 달력에 적어두세요.","병원마다 전산 처리 방식이 달라요. 미리 전화로 확인하면 좋아요."],
+next:["s-granted","s-missdoc"]});
+</script>
+
+<script>
+/* ── 3. 결과가 나왔을 때 ── */
+S.push({id:"s-granted",phase:"result",title:"등급이 나왔어요 (1~5등급·인지지원)",sub:"서류 받고 다음 순서",
+lead:"신청하고 약 30일 안에 결과가 나와요. 전화·팩스로는 안 알려주고, 우편이나 공단 방문으로 받아요.",
+steps:["결과 서류 받기 — 장기요양인정서, 개인별장기요양이용계획서, 복지용구 급여확인서","받으시면 센터에 연락 → 집으로 방문상담 일정 잡기","원하는 서비스 정하기 — 방문요양, 방문목욕, 방문간호, 주야간보호, 복지용구"],
+bring:["장기요양인정서","개인별장기요양이용계획서","복지용구 급여확인서"],
+table:[["유효기간","기간"],["처음 받은 등급","2년"],["갱신 후 1등급","5년"],["갱신 후 2~4등급","4년"],["갱신 후 5등급·인지지원","2년"]],
+say:["“결과는 우편으로 와요. 노인장기요양보험 홈페이지나 정부24에서도 보실 수 있어요.”","“서류 오면 사진 찍어서 보내주셔도 돼요. 제가 등급이랑 이용 가능한 시간 바로 봐드릴게요.”"],
+warn:["대리인이 공단에 가서 받으려면 위임장이 필요해요.","유효기간 끝나기 전에 갱신 신청을 챙겨드려요."],
+next:["s-visit","s-cost"]});
+
+S.push({id:"s-denied",phase:"result",title:"등급외가 나왔어요",sub:"다시 신청 · 이의신청 · 다른 도움",
+lead:"지금은 방문요양을 보험으로 쓰기 어렵지만, 상태가 바뀌면 다시 신청할 수 있어요.",
+steps:["다시 신청 — 보통 3개월 뒤 권장. 처음과 같은 절차, 30일 안에 결과","이의신청(심사청구) — 결과 통보일부터 90일 안에. 결과까지 60~90일","당장 도움 — 주소지 보건소·시군구 서비스 (건강관리 방문, 치매예방, 방문간호 등)","급하면 비급여 방문요양 (전액 본인부담)"],
+table:[["등급외","인정점수"],["A형","45점 이상 ~ 51점 미만"],["B형","40점 이상 ~ 45점 미만"],["C형","40점 미만"]],
+say:["“이번에는 등급외로 나왔지만, 상태가 달라지시면 언제든 다시 신청하실 수 있어요. 그때도 저희가 무료로 도와드려요.”","“주민등록상 주소지 보건소에 한번 문의해 보세요. 방문 건강관리 같은 걸 받으실 수 있어요.”","“3~6개월 뒤에 안부 겸 다시 연락드려도 괜찮을까요?”"],
+warn:["이의신청은 실제로 바뀌는 경우가 많지 않아서, 보통은 재신청을 권해요.","상태가 갑자기 나빠지면 3개월 전이라도 다시 신청할 수 있어요."],
+next:["s-missdoc","s-wait"]});
+
+S.push({id:"s-missdoc",phase:"result",title:"소견서를 못 내서 멈췄어요 / 다시 신청",sub:"포기·철회 후 재신청",
+lead:"소견서 기한을 놓쳤거나 신청을 취소했으면, 처음부터 다시 신청하면 돼요.",
+steps:["지금 상태 다시 확인 — 나빠진 점이 있는지","보통 3개월쯤 지나 다시 신청 (급하게 나빠지면 더 빨리)","이번엔 단골 병원을 미리 정해 두고, 소견서 기한을 달력에 적기"],
+say:["“이번엔 아쉽게 됐지만, 다시 신청하시면 돼요. 그때는 소견서 날짜를 제가 같이 챙겨드릴게요.”"],
+next:["s-apply","s-doctor"]});
+
+/* ── 4. 방문상담·계약 ── */
+S.push({id:"s-visit",phase:"contract",title:"집으로 방문상담 가요 (1차 방문)",sub:"상태 확인 · 위험도 평가",
+lead:"센터 담당자가 집에 가서 어르신 상태를 보고, 원하시는 서비스를 같이 정해요.",
+steps:["공단 서류 확인 — 등급, 이용 가능 시간, 본인부담률","할 수 있는 일 / 어려운 일 자세히 여쭤보기","위험도 평가 — 낙상(넘어짐), 욕창, 인지(치매 선별검사), 욕구조사","원하는 요일·시간·도움 내용 정하기 (운동, 산책, 병원 동행, 식사 준비 등)"],
+say:["“질문이 좀 많아요. 자세히 알수록 어르신께 잘 맞는 선생님을 찾을 수 있어서요.”","“산책이나 병원 같이 가는 것처럼 원하시는 게 있으면 지금 말씀해 주세요. 구인할 때 반영할게요.”"],
+warn:["방문요양은 어르신 본인을 위한 서비스예요. 가족 빨래·식사, 가게 일 돕기 같은 건 안 돼요."],
+next:["s-contract"]});
+
+S.push({id:"s-contract",phase:"contract",title:"계약서 쓰기 (2차 방문)",sub:"서명하는 서류들",
+lead:"표준약관 계약서와 동의서에 서명하면, 요양보호사 구인을 시작할 수 있어요.",
+steps:["표준약관 계약서 — 이용 시간, 본인부담금 확인 후 서명","개인정보 수집·이용 동의 — 구인 공고에 건강 상태·대략적 지역이 들어가서 필요","입소이용신청서, 재가서비스 이용내역서","다른 서비스(주간보호 등) 같이 쓰는지 확인"],
+bring:["장기요양인정서","어르신 신분증","도장 또는 서명할 분 (어르신 또는 보호자)"],
+say:["“이 계약서가 있어야 요양보호사 구인 공고를 올릴 수 있어요.”","“공고에는 이름이나 정확한 주소는 안 나가고, 대략적인 동네랑 필요한 도움 정도만 올라가요.”","“계약이 안 되면 받은 서류는 파쇄해요.”"],
+warn:["서명은 보호자(예: 어머님)가 하셔도 돼요.","서비스가 바로 시작되지 않으면, 시작 날짜에 맞춰 일부 서류를 다시 쓸 수 있어요."],
+next:["s-match","s-cost"]});
+
+S.push({id:"s-start",phase:"contract",title:"서비스 시작해요",sub:"시작 후 센터가 하는 일",
+lead:"선생님이 정해지면 일정표를 드리고 서비스를 시작해요.",
+steps:["공단에 급여계약 통보, 출퇴근 태그 신청","급여제공계획서 작성","서비스 일정 등록 → 일정표 드림","매달 이용 내역 관리"],
+say:["“선생님이 오실 때마다 출퇴근을 기록해요. 그게 있어야 공단에 정확히 청구돼요.”","“불편한 점은 선생님께 말하기 어려우시면 저한테 바로 말씀해 주세요.”"],
+next:["s-change","s-cost"]});
+</script>
+
+<script>
+/* ── 5. 요양보호사 매칭 ── */
+S.push({id:"s-match",phase:"match",title:"요양보호사는 어떻게 정해져요?",sub:"구인 → 면접 → 선택",
+lead:"센터가 공고를 올려 후보를 먼저 만나보고, 괜찮은 분 2~3명을 어르신이 직접 만나 고르세요.",
+steps:["구인 공고 올리기 — 대략적인 동네, 어르신 상태, 필요한 도움, 요일·시간","센터가 1차 면접으로 후보 추리기","어르신·보호자와 2차 면접 — 얼굴 보고 궁금한 것 물어보기","마음에 드는 분으로 결정 → 근로계약 → 서비스 시작"],
+say:["“제가 먼저 만나보고 괜찮은 분들만 모시고 갈게요. 보통 두세 분 정도 보여드려요.”","“면접 자리에서 거절하기 어려우시면, 나중에 저한테만 ‘두 번째 분이 좋았다’고 알려주시면 돼요.”","“후보가 많지 않을 때는 세 분을 다 못 모실 수도 있어요.”"],
+warn:["처음 고른 분이 아니면, 나중에 다른 후보를 다시 연결하려 해도 이미 다른 곳에 취업했을 수 있어요.","국적·성별만으로 미리 빼기보다, 사람을 직접 보고 판단하도록 안내해요."],
+next:["s-condition","s-change"]});
+
+S.push({id:"s-condition",phase:"match",title:"조건 정하기 — 빨리 구하려면",sub:"요일·시간·하는 일",
+lead:"조건이 까다로울수록 선생님 구하기가 어려워요. 주 5일, 하루 3시간이 가장 잘 구해져요.",
+steps:["시간 — 하루 2시간은 지원자가 매우 적어요. 3시간을 권해요","요일 — 월~금 연속이 좋아요. 월·수·금만이면 선생님이 나머지 날 일을 따로 구해야 해서 꺼려요","하는 일 — 운동 보조처럼 특별한 일만 요구하기보다, 가능한 범위의 가사(반찬 준비 등)를 같이 넣으면 지원이 늘어요","처음엔 적게 시작해도, 나중에 횟수를 늘릴 수 있어요"],
+say:["“선생님들은 대부분 주 5일 근무를 원하셔서, 주 5회 3시간이면 훨씬 빨리 연결돼요.”","“처음부터 딱 맞추기보다, 서로 조금씩 맞춰가면 오래 함께하실 수 있어요.”"],
+warn:["24시간 상주는 안 돼요. 방문요양은 하루 3~4시간이 한도예요. 더 필요하면 추가 시간을 비급여로 따로 계약해요."],
+next:["s-match","s-cost"]});
+
+S.push({id:"s-change",phase:"match",title:"선생님이 안 맞아요",sub:"변경 요청",
+lead:"요양보호사 변경은 가능해요. 다만 새 분을 찾고 일정을 맞추는 데 시간이 좀 걸려요.",
+steps:["불편한 점을 센터 담당자에게 먼저 이야기","센터가 상황 확인 후 조정 또는 새 구인","새 분이 정해질 때까지 기존 일정 유지할지 함께 결정"],
+say:["“직접 말씀하시기 어려우시면 저한테 말씀해 주세요. 제가 조심스럽게 조율할게요.”","“바로 바꿔드리긴 어려울 수 있어서, 새 선생님 구하는 동안 조금만 기다려 주세요.”"],
+next:["s-condition"]});
+
+/* ── 6. 비용·이용 중 ── */
+S.push({id:"s-cost",phase:"use",title:"비용은 얼마나 들어요?",sub:"본인부담금 계산기",calc:true,
+lead:"나라(공단)가 대부분 내고, 어르신은 일부만 내세요. 일반은 15%예요.",
+table:[["구분","본인부담"],["일반","15%"],["감경 대상","9% 또는 6%"],["기초생활수급자","0% (무료)"]],
+say:["“주 3회, 하루 3시간 한 달 쓰시면 대략 10만~13만 원 정도예요.”","“본인부담이 몇 %인지는 건강보험 자격확인서나 공단 서류에 나와 있어요.”"],
+warn:["일요일·야간은 30%, 일요일 아닌 공휴일은 50% 더 붙어서, 1회에 2~4천 원 정도 늘 수 있어요.","등급별 월 한도를 넘는 금액은 전액 본인부담이에요."],
+next:["s-welfare","s-rules"]});
+
+S.push({id:"s-welfare",phase:"use",title:"복지용구 (전동침대·워커 등)",sub:"1년 160만 원 한도",
+lead:"등급이 있으면 1년에 160만 원 한도 안에서 복지용구를 사거나 빌릴 수 있어요. 방문요양 한도와는 따로예요.",
+steps:["복지용구 급여확인서 확인","필요한 물품 고르기 — 전동침대, 워커, 욕창방지 매트리스, 미끄럼방지 매트 등","본인부담률만큼만 내고, 한도 넘으면 전액 본인부담"],
+say:["“방문요양 쓰시는 것과 별도로, 1년에 160만 원까지 복지용구를 쓰실 수 있어요.”"],
+next:["s-cost"]});
+
+S.push({id:"s-family",phase:"use",title:"가족이 직접 돌볼 수 있나요? (가족요양)",sub:"요양보호사 자격 있는 가족",
+lead:"가족이 요양보호사 자격증이 있으면 센터 소속으로 가족요양을 하고 급여를 받을 수 있어요.",
+steps:["대상 가족 — 배우자, 부모·자녀·손주, 형제자매, 며느리·사위, 시부모·장인장모, 시누이·처남 등","기본 — 하루 1회, 한 달 20일, 하루 60분까지","예외 — 65세 이상 배우자가 돌보거나, 치매 진단 + 폭력·망상 같은 문제행동이 있으면 한 달 31일, 하루 90분까지","가족요양 안 하는 날에는 일반 요양보호사도 이용 가능 (같은 날은 안 됨)"],
+say:["“어머님이 자격증이 있으시면 가족요양으로 직접 돌보시면서 급여를 받으실 수 있어요.”","“가족요양 하시는 날 말고 다른 날에는 일반 선생님을 부르셔도 돼요.”"],
+warn:["다른 직장에 다니면, 그 근무시간까지 합쳐 한 달 160시간 이상이면 가족요양이 제한돼요.","실제 월 급여액은 근무일·시간에 따라 달라져요. 정확한 금액은 계약 때 다시 확인해요."],
+next:["s-cost"]});
+
+S.push({id:"s-rules",phase:"use",title:"이런 건 되나요? (자주 묻는 질문)",sub:"하루 시간 · 주말 · 병원 동행",
+faq:[
+["하루에 몇 시간 쓸 수 있나요?","등급과 월 한도에 따라 다르고, 보통 하루 3~4시간이에요. (예: 2등급 하루 4시간, 3등급 하루 3시간)"],
+["하루에 두 번 오실 수 있나요?","네. 하루 최대 3번, 1회 30분~180분이고 방문 사이에 2시간 이상 띄워야 해요. 너무 짧으면 선생님 구하기가 어려워요."],
+["주말·공휴일·밤에도 되나요?","네. 일요일·야간은 30%, 공휴일은 50% 더 붙어요. 1회에 2~4천 원 정도 늘어요."],
+["가족이 집에 있어도 받을 수 있나요?","네. 다만 서비스는 어르신 본인에게만 해요. 가족 빨래·식사, 가게 일은 안 돼요."],
+["병원에 모셔다드리고 집안일 하셔도 되나요?","안 돼요. 병원 동행이면 진료가 끝날 때까지 같이 계셔야 해요."],
+["부부 두 분 다 등급이 있어요.","같은 집에 사는 가족 2명 이하면 같은 시간에 한 선생님이 볼 수 있는 경우가 있어요. 본인부담은 각자 따로. 인지활동형은 반드시 1:1이에요."],
+["갑자기 쉬어야 하면요?","가능하면 최소 하루 전에 센터에 연락 주세요."],
+["24시간 계시는 분이 필요해요.","방문요양은 하루 3~4시간이 한도라 상주는 안 돼요. 추가 시간은 비급여로 따로 계약해요."]
+],
+next:["s-cost","s-family"]});
+</script>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const byId=id=>S.find(x=>x.id===id);
+
+function home(){
+  $("#steps").innerHTML=FLOW.map(f=>`<button class="step" data-go="${f[2]}">${f[0]}<span>${f[1]}</span></button>`).join("");
+  renderPhases("");
+}
+function renderPhases(q){
+  q=q.trim();
+  const hit=s=>!q||JSON.stringify(s).includes(q);
+  $("#phases").innerHTML=PHASES.map(p=>{
+    const items=S.filter(s=>s.phase===p.id&&hit(s));
+    if(!items.length) return "";
+    return `<div class="phase"><h3>${p.name}<em>${p.hint}</em></h3><div class="grid">${
+      items.map(s=>`<button class="tile" data-go="${s.id}"><b>${s.title}</b><span>${s.sub}</span></button>`).join("")
+    }</div></div>`;
+  }).join("")||`<p style="color:var(--muted)">‘${esc(q)}’에 맞는 상황이 없어요.</p>`;
+}
+const list=(a,tag="ul")=>`<${tag}>${a.map(x=>`<li>${x}</li>`).join("")}</${tag}>`;
+
+function open(id){
+  const s=byId(id); if(!s) return;
+  const p=PHASES.find(x=>x.id===s.phase);
+  let h=`<div class="dhead"><span class="tag">${p.name}</span><h2>${s.title}</h2>${s.lead?`<p>${s.lead}</p>`:""}</div>`;
+  if(s.say) h+=`<div class="sec say"><h4>이렇게 말해요</h4>${s.say.map(x=>`<div class="quote">${x}</div>`).join("")}</div>`;
+  if(s.steps) h+=`<div class="sec"><h4>순서</h4>${list(s.steps,"ol")}</div>`;
+  if(s.calc) h+=calcHTML();
+  if(s.table) h+=`<div class="sec"><h4>한눈에 보기</h4><table class="t"><tr>${s.table[0].map(x=>`<th>${x}</th>`).join("")}</tr>${s.table.slice(1).map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}</tr>`).join("")}</table></div>`;
+  if(s.bring) h+=`<div class="sec bring"><h4>챙길 것 — 눌러서 체크</h4>${list(s.bring)}</div>`;
+  if(s.faq) h+=`<div class="sec">${s.faq.map(f=>`<details><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join("")}</div>`;
+  if(s.warn) h+=`<div class="sec warn"><h4>꼭 알려드릴 것</h4>${list(s.warn)}</div>`;
+  if(s.next) h+=`<div class="next">${s.next.map(n=>byId(n)?`<button data-go="${n}">${byId(n).title} →</button>`:"").join("")}</div>`;
+  $("#detail").innerHTML=h;
+  $("#home").classList.add("hide"); $("#detail").classList.add("show");
+  $("#backBtn").style.display="";
+  window.scrollTo(0,0);
+  if(s.calc) calcRun();
+}
+function back(){
+  $("#detail").classList.remove("show"); $("#home").classList.remove("hide");
+  $("#backBtn").style.display="none"; window.scrollTo(0,0);
+}
+
+/* 계산기: 매뉴얼 예시 — 3시간(180분) 1회 본인부담 15% = 8,553원 → 전체 수가 약 57,020원 */
+const FEE=57020;
+const C={rate:15,days:3};
+function calcHTML(){
+  return `<div class="sec calc"><h4>본인부담금 계산 (하루 3시간 기준)</h4>
+  <label>본인부담률</label><div class="seg" data-k="rate">${[15,9,6,0].map(r=>`<button data-v="${r}">${r}%</button>`).join("")}</div>
+  <label>일주일에 몇 번</label><div class="seg" data-k="days">${[1,2,3,4,5,6].map(d=>`<button data-v="${d}">주 ${d}회</button>`).join("")}</div>
+  <div class="result" id="res"></div></div>`;
+}
+function calcRun(){
+  document.querySelectorAll(".seg").forEach(g=>g.querySelectorAll("button").forEach(b=>b.classList.toggle("on",+b.dataset.v===C[g.dataset.k])));
+  const once=Math.round(FEE*C.rate/100);
+  const w=once*C.days, m4=Math.floor(w*4/10)*10, m5=Math.floor(w*5/10)*10;
+  $("#res").innerHTML=C.rate===0
+    ?`<div class="big">0원</div><small>기초생활수급자 등 면제 대상은 본인부담이 없어요.</small>`
+    :`<div>한 달 약</div><div class="big">${m4.toLocaleString()} ~ ${m5.toLocaleString()}원</div>
+      <small>1회 약 ${once.toLocaleString()}원 × 주 ${C.days}회 × 4~5주. 매뉴얼 예시 단가로 계산한 대략치예요. 일요일·공휴일·야간 가산과 등급별 월 한도는 빠져 있어요.</small>`;
+}
+
+document.addEventListener("click",e=>{
+  const g=e.target.closest("[data-go]"); if(g){open(g.dataset.go);return;}
+  const sb=e.target.closest(".seg button"); if(sb){C[sb.parentElement.dataset.k]=+sb.dataset.v;calcRun();return;}
+  const li=e.target.closest(".bring li"); if(li){li.classList.toggle("ck");}
+});
+$("#backBtn").onclick=back;
+$("#q").addEventListener("input",e=>renderPhases(e.target.value));
+let big=false;
+$("#fontBtn").onclick=()=>{big=!big;document.documentElement.style.setProperty("--fs",big?"20px":"17px");$("#fontBtn").classList.toggle("on",big);$("#fontBtn").textContent=big?"글자 보통":"글자 크게";};
+home();
+</script>
+
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
